@@ -1,15 +1,45 @@
+#!/usr/bin/env bash
 set -x
+set -o errexit
+set -o pipefail
 
-# 在 main_grpo.sh 开头添加
-export HF_ENDPOINT=https://hf-mirror.com  # 使用国内镜像[7,8](@ref)
-export HF_HOME=/root/autodl-tmp/hf_cache  # 缓存到数据盘[2,5](@ref)
-export HF_TIMEOUT=120  # 超时延长至120秒[3](@ref)
+# 1. Clean Conda cache safely
+if command -v conda &> /dev/null; then
+    conda clean --all --yes
+else
+    rm -rf /root/miniconda3/pkgs/*
+fi
+
+# 2. Clean HuggingFace cache files older than 7 days
+find /root/autodl-tmp/hf_cache -type f -mtime +7 -exec rm -f {} \; || true
+
+# 3. Clean old checkpoints: keep only the 2 most recent (adjust as needed)
+CKPT_DIR="/root/autodl-tmp/checkpoints/actor"
+if [ -d "$CKPT_DIR" ]; then
+    cd "$CKPT_DIR"
+    ls -dt global_step_* 2>/dev/null | tail -n +3 | xargs rm -rf
+    cd -
+fi
+
+# 4. Clean temp files older than 2 days
+find /root/autodl-tmp -type f -mtime +2 -exec rm -f {} \; || true
+find /tmp -type f -mtime +2 -exec rm -f {} \; || true
+
+# 5. Clean trash (user and root)
+rm -rf ~/.local/share/Trash/* /.Trash-0/* || true
+
+# 6. Set environment variables for HuggingFace and CUDA
+export HF_ENDPOINT=https://hf-mirror.com
+export HF_HOME=/root/autodl-tmp/hf_cache
+export HF_TIMEOUT=120
 
 export PYTORCH_CUDA_ALLOC_CONF="expandable_segments:True"
 export CUDA_LAUNCH_BLOCKING=1
 
 MODEL_PATH=Qwen/Qwen2.5-7B-Instruct-1M
 export VLLM_ATTENTION_BACKEND=XFORMERS
+
+# 7. Run Logic-RL training
 python3 -m verl.trainer.main_ppo \
     algorithm.adv_estimator=reinforce_plus_plus \
     data.train_files=data/kk/instruct/3ppl/train.parquet \
