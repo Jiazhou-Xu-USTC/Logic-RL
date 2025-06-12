@@ -1,19 +1,28 @@
 set -x
-MODEL_PATH=xxx
+
+# 在 main_grpo.sh 开头添加
+export HF_ENDPOINT=https://hf-mirror.com  # 使用国内镜像[7,8](@ref)
+export HF_HOME=/root/autodl-tmp/hf_cache  # 缓存到数据盘[2,5](@ref)
+export HF_TIMEOUT=120  # 超时延长至120秒[3](@ref)
+
+export PYTORCH_CUDA_ALLOC_CONF="expandable_segments:True"
+export CUDA_LAUNCH_BLOCKING=1
+
+MODEL_PATH=Qwen/Qwen2.5-7B-Instruct-1M
 export VLLM_ATTENTION_BACKEND=XFORMERS
 python3 -m verl.trainer.main_ppo \
-    algorithm.adv_estimator=grpo \
-    data.train_files=data/xxx \
-    data.val_files=dataxxx \
+    algorithm.adv_estimator=reinforce_plus_plus \
+    data.train_files=data/kk/instruct/3ppl/train.parquet \
+    data.val_files=data/kk/instruct/3ppl/test.parquet \
     data.train_batch_size=64 \
     data.val_batch_size=32 \
     data.max_prompt_length=400 \
     data.max_response_length=2048 \
-    actor_rollout_ref.model.path=$MODEL_PATH\
+    actor_rollout_ref.model.path=$MODEL_PATH \
     actor_rollout_ref.actor.optim.lr=3e-7 \
     actor_rollout_ref.model.use_remove_padding=True \
     actor_rollout_ref.actor.ppo_mini_batch_size=32 \
-    actor_rollout_ref.actor.ppo_micro_batch_size=16 \
+    actor_rollout_ref.actor.ppo_micro_batch_size=8 \
     actor_rollout_ref.actor.use_kl_loss=True \
     actor_rollout_ref.actor.kl_loss_coef=0.001 \
     actor_rollout_ref.actor.kl_loss_type=low_var_kl \
@@ -31,11 +40,11 @@ python3 -m verl.trainer.main_ppo \
     algorithm.kl_ctrl.kl_coef=0.001 \
     trainer.critic_warmup=0 \
     trainer.logger=['wandb'] \
-    trainer.project_name='GRPO_logic_KK' \
+    trainer.project_name='reinforce_plus_plus_logic_KK' \
     trainer.experiment_name='Qwen-7B' \
     trainer.n_gpus_per_node=4 \
     trainer.nnodes=1 \
-    trainer.default_local_dir=xxx \
+    trainer.default_local_dir=/root/autodl-tmp/checkpoints \
     trainer.default_hdfs_dir=null \
     trainer.save_freq=10 \
     trainer.test_freq=10 \

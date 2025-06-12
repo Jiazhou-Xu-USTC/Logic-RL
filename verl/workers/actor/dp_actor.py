@@ -270,7 +270,6 @@ class DataParallelPPOActor(BasePPOActor):
 
                 loss = policy_loss / self.gradient_accumulation
                 loss.backward()
-
                 data = {
                     'actor/entropy_loss': entropy_loss.detach().item(),
                     'actor/pg_loss': pg_loss.detach().item(),
