@@ -74,7 +74,7 @@ python3 -m verl.trainer.main_ppo \
     trainer.experiment_name='Qwen-7B' \
     trainer.n_gpus_per_node=4 \
     trainer.nnodes=1 \
-    trainer.default_local_dir=/root/autodl-tmp/checkpoints \
+    trainer.default_local_dir=/root/autodl-fs/checkpoints \
     trainer.default_hdfs_dir=null \
     trainer.save_freq=10 \
     trainer.test_freq=10 \
