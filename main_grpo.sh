@@ -14,7 +14,7 @@ fi
 find /root/autodl-tmp/hf_cache -type f -mtime +7 -exec rm -f {} \; || true
 
 # 3. Clean old checkpoints: keep only the 2 most recent (adjust as needed)
-CKPT_DIR="/root/autodl-tmp/checkpoints/actor"
+CKPT_DIR="/root/autodl-fs/checkpoints/actor"
 if [ -d "$CKPT_DIR" ]; then
     cd "$CKPT_DIR"
     ls -dt global_step_* 2>/dev/null | tail -n +3 | xargs rm -rf
