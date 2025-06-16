@@ -34,7 +34,7 @@ def main():
     # elif args.stage == 2:
     #     model_path = f"/volume/ailab4sci/ztgao/Logic-RL/checkpoints/GRPO_logic_KK/RF++-xppl-step1320-t0_7-001/actor/global_step_{args.step}"
         
-    model_path = "/root/autodl-fs/checkpoints/7ppl/actor/global_step_70"
+    model_path = "/root/autodl-fs/checkpoints/6ppl/global_step_60"
     # model_path = "/volume/ailab4sci/models/CodeR1-Zero-Qwen2.5-7B-12k-832"
     # model_path = "/volume/ailab4sci/models/CodeR1-Zero-Qwen2.5-7B-LC2k-1088"
     
@@ -103,7 +103,7 @@ def main():
     
     acc = cnt / len(data)
     print(f"ACC: {acc}")
-    output_json = f"amc_output_{args.stage}_{args.step}.json"
+    output_json = f"amc_output_6ppl.json"
     with open(output_json, 'w') as outfile:
         json.dump(results, outfile, indent=4)
 
